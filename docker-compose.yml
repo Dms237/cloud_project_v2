@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: cloud-postgres
+    environment:
+      POSTGRES_DB: cloudtasks
+      POSTGRES_USER: clouduser
+      POSTGRES_PASSWORD: cloudpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api-service:
+    build: ./api-service
+    container_name: api-service
+    environment:
+      PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: cloudtasks
+      DB_USER: clouduser
+      DB_PASSWORD: cloudpass
+    depends_on:
+      - postgres
+    ports:
+      - "3000:3000"
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    environment:
+      PORT: 3001
+      JWT_SECRET: super-secret-demo-key
+    ports:
+      - "3001:3001"
+
+  frontend:
+    build: ./frontend
+    container_name: cloud-frontend
+    depends_on:
+      - api-service
+      - auth-service
+    ports:
+      - "8080:80"
+
+volumes:
+  postgres_data:

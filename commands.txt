@@ -1,0 +1,24 @@
+# Build images
+docker build -t dms237/api-service:latest ./api-service
+docker build -t dms237/auth-service:latest ./auth-service
+docker build -t dms237/cloud-frontend:latest ./frontend
+
+# Push images
+docker push dms237/api-service:latest
+docker push dms237/auth-service:latest
+docker push dms237/cloud-frontend:latest
+
+# Kubernetes
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/postgres-secret.yaml
+kubectl apply -f k8s/postgres-configmap.yaml
+kubectl apply -f k8s/postgres.yaml
+kubectl apply -f k8s/api.yaml
+kubectl apply -f k8s/auth.yaml
+kubectl apply -f k8s/frontend.yaml
+kubectl apply -f k8s/ingress.yaml
+
+# Checks
+kubectl get pods -n cloud-project
+kubectl get svc -n cloud-project
+kubectl get ingress -n cloud-project
